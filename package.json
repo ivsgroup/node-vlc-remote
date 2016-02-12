@@ -1,0 +1,29 @@
+{
+  "name": "vlc-remote",
+  "version": "1.0.0",
+  "description": "VLC control through TCP/RC (telnet) remote interface",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:ivsgroup/node-vlc-remote.git"
+  },
+  "keywords": [
+    "vlc",
+    "vlc-rc",
+    "vlc-remote",
+    "api"
+  ],
+  "author": "Francois Leurent <131.js@cloudyks.org>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ivsgroup/node-vlc-remote/issues"
+  },
+  "homepage": "https://github.com/ivsgroup/node-vlc-remote",
+  "dependencies": {
+    "nyks": "^2.5.1",
+    "uclass": "^2.0.7"
+  }
+}
