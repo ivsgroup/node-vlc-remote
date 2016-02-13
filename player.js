@@ -47,7 +47,7 @@ module.exports = function(/*[options,] chain*/){
   if(false)
     recorder.stderr.pipe(process.stderr);
 
-  var remote = new Remote(options);
+  var remote = new Remote(options.port, options.host);
   remote.vlc = recorder;
 
     //we consider everything ready once we can fetch dummy infos
