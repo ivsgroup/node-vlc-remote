@@ -20,12 +20,16 @@ var Remote = new Class({
     this.setOptions(options)
   },
 
+  info : function(chain) { this._send("info", chain); },
+  stop : function(chain) { this._send("stop", chain); },
+
   getLength : function(chain){
           //first call to get_length always return 0
     this._send("get_length\r\nget_length", function (err, length) {
       chain(null, Number(length.split("\n")[1]));
     });
   },
+
 
   playonce : function(file, options , chain) {
     var self = this,
@@ -53,7 +57,9 @@ var Remote = new Class({
     this._send("clear", function(){
       files.forEach(function(fileName , id){
         var cmd = id === 0 ? "add ": "enqueue ";
-        self._send(cmd + fileName, function(err){console.log("err :" , err)});
+        self._send(cmd + fileName, function(err){
+
+        });
       })
     });
   },
@@ -61,7 +67,7 @@ var Remote = new Class({
   _send : function(str, chain) {
     chain = once(chain || Function.prototype);
 
-    console.log('i send :' , str);
+    // console.log('i send :' , str);
 
     var sock = net.connect(this.options.network, function(err){
       if(err)
@@ -97,7 +103,6 @@ var Remote = new Class({
   },
 
 });
-
 
 
 module.exports = Remote;
