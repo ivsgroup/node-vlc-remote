@@ -59,8 +59,12 @@ var Remote = new Class({
     this._send(verbs, chain);
   },
 
-  play : function(files, chain) {
+  play : function(/*files, [options,] chain*/) {
+    
     var self = this;
+    var args    = [].slice.apply(arguments),
+    chain   = args.pop(),
+    files = args.shift() || {};
 
     if(typeof files == "string")
       files = [files];

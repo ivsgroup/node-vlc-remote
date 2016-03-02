@@ -55,7 +55,7 @@ module.exports = function(/*[options,] chain*/){
 
   var remote = new Remote(options.port, options.host);
   remote.vlc = recorder;
-
+  var attempt = 0 ;
     //we consider everything ready once we can fetch dummy infos
   function waitVlc(){
     remote.info(function(err , output){
