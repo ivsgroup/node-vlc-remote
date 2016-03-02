@@ -26,7 +26,6 @@ var config  = {
 
   'video-on-top'     : null,
 
-  'fullscreen'       : null,
   'loop'             : null,
 };
 
@@ -37,13 +36,12 @@ if(isWin) mixIn(config, {
 });
 
 
-
-
-
 module.exports = function(/*[options,] chain*/){
   var args    = [].slice.apply(arguments),
       chain   = args.pop(),
       options = args.shift() || {};
+      
+  mixIn(config, options.args ||{});
 
 
   var cmdargs = values( map(config, function(v, k){
@@ -59,9 +57,18 @@ module.exports = function(/*[options,] chain*/){
   remote.vlc = recorder;
 
     //we consider everything ready once we can fetch dummy infos
-  remote.info(function(err, output){
-    chain(); 
-  });
+  function waitVlc(){
+    remote.info(function(err , output){
+      if (attempt > 4)
+        return chain(err)
+      if(err){
+        attempt++
+        return setTimeout(waitVlc , 200)
+       }
+      chain()
+    })
+  }
+  waitVlc();
 
   return remote;
 }
