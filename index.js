@@ -24,6 +24,9 @@ var Remote = new Class({
   getLength : function(chain){
           //first call to get_length always return 0
     this._send("get_length\r\nget_length", function (err, length) {
+      if(err)
+        return chain(err);
+
       chain(null, Number(length.split("\n")[1]));
     });
   },
@@ -56,8 +59,12 @@ var Remote = new Class({
     this._send(verbs, chain);
   },
 
-  play : function(files, chain) {
+  play : function(/*files, [options,] chain*/) {
+    
     var self = this;
+    var args    = [].slice.apply(arguments),
+    chain   = args.pop(),
+    files = args.shift() || {};
 
     if(typeof files == "string")
       files = [files];
@@ -92,6 +99,8 @@ var Remote = new Class({
       sock.once("end", function(){
         //trim vlc verbosity
         body = body.replace(/status change:.*\r?\n/g, '');
+        body = body.replace(/^[\s\S]*?>/, '');
+        body = body.replace(/> Bye-bye!.*/, '');
         chain(null , body.trim());
       });
 
