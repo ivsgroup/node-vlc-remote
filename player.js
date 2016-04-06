@@ -24,12 +24,12 @@ var config  = {
   'rc-host'          : '127.0.0.1:8088',
   'extraintf'        : 'rc',
 
-  'video-on-top'     : null,
 
   'loop'             : null,
 };
 
 if(isWin) mixIn(config, {
+  'video-on-top'     : null,
   'no-crashdump'     : null,
   'rc-quiet'         : null,
   'dummy-quiet'      : null,
