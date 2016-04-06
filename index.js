@@ -54,7 +54,7 @@ var Remote = new Class({
     if(!files.length)
       return chain();
 
-    var verbs = mask(files, "enqueue '%2$s'", "\r\n");
+    var verbs = mask(files, "enqueue %2$s", "\r\n");
 
     this._send(verbs, chain);
   },
