@@ -20,6 +20,11 @@ var Remote = new Class({
   info  : function(chain) { this._send("info", chain); },
   stop  : function(chain) { this._send("stop", chain); },
   pause : function(chain) { this._send("pause", chain); },
+  vratio : function(ratio, chain) {
+    if(ratio)
+      this._send("vratio " + ratio, chain);
+  },
+  fullscreen : function(chain) { this._send("fullscreen ", chain); },
 
   getLength : function(chain){
           //first call to get_length always return 0
@@ -84,7 +89,7 @@ var Remote = new Class({
   _send : function(str, chain) {
     //console.log('i send :' , str, chain);
    // chain = once(chain);
-
+    chain = chain || Function.prototype;
     var dst  = { port: this._port, host:this._host};
 
     var sock = net.connect(dst, function(){
