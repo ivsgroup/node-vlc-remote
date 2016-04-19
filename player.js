@@ -59,11 +59,11 @@ module.exports = function(/*[options,] chain*/){
     //we consider everything ready once we can fetch dummy infos
   function waitVlc(){
     remote.info(function(err , output){
-      if (attempt > 4)
+      if (attempt > 20)
         return chain(err)
       if(err){
         attempt++
-        return setTimeout(waitVlc , 200)
+        return setTimeout(waitVlc , 500)
        }
       chain()
     })
