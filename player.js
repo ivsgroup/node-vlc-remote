@@ -1,10 +1,11 @@
+
 "use strict";
 
 var isWin  = (process.platform == "win32");
 var Remote = require("./");
 
   //not in package dependency, manage this by yourself
-var vlc    = require("vlc-player"); 
+var vlc    = require("vlc-player");
 
 var map    = require('mout/object/map');
 var values = require('mout/object/values');
@@ -18,7 +19,7 @@ var config  = {
   'config'           : 'blank',
 
 
-  'verbose'          : 0,
+  'verbose'          : 3,
   'intf'             : 'dummy',
 
   'rc-host'          : '127.0.0.1:8088',
@@ -40,7 +41,7 @@ module.exports = function(/*[options,] chain*/){
   var args    = [].slice.apply(arguments),
       chain   = args.pop(),
       options = args.shift() || {};
-      
+
   mixIn(config, options.args ||{});
 
 
@@ -50,8 +51,15 @@ module.exports = function(/*[options,] chain*/){
 
   var recorder = vlc(cmdargs);
 
-  if(false)
-    recorder.stderr.pipe(process.stderr);
+  var skin_ready = true;
+  if(config.intf == "skins2"){
+    skin_ready = false;
+    recorder.stderr.on("data", function(lines){
+      if( (""+lines).indexOf("using skin file") != -1)
+       skin_ready = true;
+    });
+  }
+
 
   var remote = new Remote(options.port, options.host);
   remote.vlc = recorder;
@@ -61,14 +69,16 @@ module.exports = function(/*[options,] chain*/){
     remote.info(function(err , output){
       if (attempt > 20)
         return chain(err)
-      if(err){
+      if(err || !skin_ready){
         attempt++
-        return setTimeout(waitVlc , 500)
+        return setTimeout(waitVlc , 200)
        }
-      chain()
+       chain()
     })
   }
   waitVlc();
 
   return remote;
 }
+
+
