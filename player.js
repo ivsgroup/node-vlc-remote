@@ -17,15 +17,13 @@ var config  = {
   'no-plugins-cache' : null,
   'no-media-library' : null,
   'config'           : 'blank',
+  'no-video-title-show' : null,
 
-
-  'verbose'          : 3,
+  'verbose'          : 0,
   'intf'             : 'dummy',
 
   'rc-host'          : '127.0.0.1:8088',
   'extraintf'        : 'rc',
-
-  'video-on-top'     : null,
 
   'loop'             : null,
 };
@@ -42,7 +40,14 @@ module.exports = function(/*[options,] chain*/){
       chain   = args.pop(),
       options = args.shift() || {};
 
+
+  
   mixIn(config, options.args ||{});
+  if(config.intf != "skins2"){
+    mixIn(config, {"fullscreen" : null});
+  }else{
+   mixIn(config, {"verbose" : 3, "video-on-top" : null});
+  }
 
 
   var cmdargs = values( map(config, function(v, k){
@@ -73,7 +78,7 @@ module.exports = function(/*[options,] chain*/){
         attempt++
         return setTimeout(waitVlc , 200)
        }
-       chain()
+       chain();
     })
   }
   waitVlc();
