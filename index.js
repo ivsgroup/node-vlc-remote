@@ -40,13 +40,18 @@ var Remote = new Class({
   playonce : function(file, chain) {
     var self = this,
         meta_delay = 1000; //time to wait for metadata to be ready
-
+    if(self.firstTimeout)
+	clearTimeout(self.firstTimeout);
+   if(self.secondTimeout)
+	clearTimeout(self.secondTimeout);
     self._send("add "+file, function(err) {
-      setTimeout(function(){
+      var dateStart = Date.now();
+      self.firstTimeout = setTimeout(function(){
         self.getLength(function(err, length) {
-          setTimeout(function () {
+          var videoRemainingTime = length * 1000 - (Date.now() - dateStart); 
+          self.secondTimeout = setTimeout(function () {
             self.play(self.playlist, chain)
-          }, (length * 1000) - meta_delay - 500 )
+          }, videoRemainingTime  - 500)
         })
       } , meta_delay)
     })
