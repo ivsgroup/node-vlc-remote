@@ -3,9 +3,11 @@ var Class     = require('uclass');
 var once      = require('nyks/function/once');
 var mask      = require('nyks/object/mask');
 var async     = require('async');
+var Events    = require('uclass/events');
 
 
 var Remote = new Class({
+   Implements : [Events],
 
   _port : null,
   _host : null,
