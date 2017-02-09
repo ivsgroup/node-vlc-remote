@@ -1,34 +1,30 @@
-var net       = require('net');
-var Class     = require('uclass');
-var once      = require('nyks/function/once');
-var mask      = require('nyks/object/mask');
-var async     = require('async');
-var Events    = require('uclass/events');
+"use strict";
+
+const net          = require('net');
+const EventEmitter = require('events').EventEmitter;
 
 
-var Remote = new Class({
-   Implements : [Events],
+class Remote extends EventEmitter {
 
-  _port : null,
-  _host : null,
+  constructor(port, host) {
+    super();
+    this.playlist = [];
 
-  playlist : [],
-
-  initialize : function(port, host) {
     this._port = port || 8088;
     this._host = host || "127.0.0.1";
-  },
+  }
 
-  info  : function(chain) { this._send("info", chain); },
-  stop  : function(chain) { this._send("stop", chain); },
-  pause : function(chain) { this._send("pause", chain); },
-  vratio : function(ratio, chain) {
+  info(chain) { this._send("info", chain); }
+  stop(chain) { this._send("stop", chain); }
+  pause(chain) { this._send("pause", chain); }
+  fullscreen(chain) { this._send("fullscreen ", chain); }
+
+  vratio(ratio, chain) {
     if(ratio)
       this._send("vratio " + ratio, chain);
-  },
-  fullscreen : function(chain) { this._send("fullscreen ", chain); },
+  }
 
-  getLength : function(chain){
+  getLength(chain) {
           //first call to get_length always return 0
     this._send("get_length\r\nget_length", function (err, length) {
       if(err)
@@ -36,16 +32,18 @@ var Remote = new Class({
 
       chain(null, Number(length.split("\n")[1]));
     });
-  },
+  }
 
 
-  playonce : function(file, chain) {
+  playonce(file, chain) {
     var self = this,
         meta_delay = 1000; //time to wait for metadata to be ready
+
     if(self.firstTimeout)
-	clearTimeout(self.firstTimeout);
+      clearTimeout(self.firstTimeout);
    if(self.secondTimeout)
-	clearTimeout(self.secondTimeout);
+    clearTimeout(self.secondTimeout);
+
     self._send("add "+file, function(err) {
       var dateStart = Date.now();
       self.firstTimeout = setTimeout(function(){
@@ -57,26 +55,26 @@ var Remote = new Class({
         })
       } , meta_delay)
     })
-  },
+  }
 
-  enqueue : function(files, chain){
+  enqueue(files, chain) {
     if(typeof files == "string")
       files = [files];
 
     if(!files.length)
       return chain();
 
-    var verbs = mask(files, "enqueue %2$s", "\r\n");
+    var verbs = files.map( file => `enqueue ${file}`).join("\r\n");
 
     this._send(verbs, chain);
-  },
+  }
 
-  play : function(/*files, [options,] chain*/) {
+  play(/*files, [options,] chain*/) {
     
     var self = this;
     var args    = [].slice.apply(arguments),
-    chain   = args.pop(),
-    files = args.shift() || {};
+      chain   = args.pop(),
+      files = args.shift() || [];
 
     if(typeof files == "string")
       files = [files];
@@ -91,9 +89,9 @@ var Remote = new Class({
         return chain(err);
       self.enqueue(files, chain);
     });
-  },
+  }
 
-  _send : function(str, chain) {
+  _send(str, chain) {
     //console.log('i send :' , str, chain);
    // chain = once(chain);
     chain = chain || Function.prototype;
@@ -128,9 +126,9 @@ var Remote = new Class({
     });
 
     sock.on("error", chain);
-  },
+  }
 
-});
+}
 
 
 module.exports = Remote;

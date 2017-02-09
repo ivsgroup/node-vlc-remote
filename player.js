@@ -1,18 +1,25 @@
 
 "use strict";
 
-var isWin  = (process.platform == "win32");
-var Remote = require("./");
+const spawn   = require('child_process').spawn;
 
-  //not in package dependency, manage this by yourself
-var vlc    = require("vlc-player");
+const isWin  = (process.platform == 'win32');
+const Remote = require("./");
 
-var map    = require('mout/object/map');
-var values = require('mout/object/values');
-var mixIn  = require('mout/object/mixIn');
+var vlc;
+try {
+  vlc    = require('vlc-player'); 
+} catch(e) {
+  vlc  = function(/* args, options */) {
+    return spawn.bind(null, 'vlc').apply(null, arguments);
+  }
+}
 
-var splitter = /core input debug: `(.*)' successfully opened/;
+const map    = require('mout/object/map');
+const values = require('mout/object/values');
+const mixIn  = require('mout/object/mixIn');
 
+const splitter = /input debug: `(.*)' successfully opened/;
 
 var config  = {
   'ignore-config'    : null,
@@ -63,6 +70,7 @@ module.exports = function(/*[options,] chain*/){
   var skin_ready = (config.intf == "skins2") ? false : true;
   recorder.stderr.on('data', (data) => {
     data = "" + data;
+
     if(!skin_ready)
       if((data).indexOf("using skin file") != -1)
         skin_ready = true;
@@ -74,20 +82,19 @@ module.exports = function(/*[options,] chain*/){
 
 
   remote.vlc = recorder;
-  var attempt = 0 ;
+
+  var attempt = 5;
     //we consider everything ready once we can fetch dummy infos
-  function waitVlc(){
+  (function waitVlc() {
     remote.info(function(err , output){
-      if (attempt > 20)
-        return chain(err)
-      if(err || !skin_ready){
-        attempt++
-        return setTimeout(waitVlc , 200)
-       }
-       chain();
+      if(!err && skin_ready)
+        return chain();
+      if (!attempt --)
+        return chain(err);
+      return setTimeout(waitVlc , 200)
     })
-  }
-  waitVlc();
+  })();
+
 
   return remote;
 }

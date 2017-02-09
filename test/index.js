@@ -27,7 +27,11 @@ describe("Initial test suite", function(){
 
 
   it("should prepare a vlc server mock", function(chain){
-    vlc.listen(8088, chain)
+    vlc.listen(8088, function(err){
+      console.log(this.listening);
+      chain();
+
+    })
   });
 
   var remote = new Remote();
@@ -53,7 +57,7 @@ describe("Initial test suite", function(){
   it("tests a playlist", function(chain){
     remote.play(["test.mp4", "test1.mp4", "test2.mp4"], function(err){
       expect(err).not.to.be.ok();
-      expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue \'test1.mp4\'\r\nenqueue \'test2.mp4\'\r\n');
+      expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue test1.mp4\r\nenqueue test2.mp4\r\n');
       chain();
     });
   });
@@ -62,7 +66,7 @@ describe("Initial test suite", function(){
   it("enques a simple file", function(chain){
     remote.enqueue("test.mp4", function(err){
       expect(err).not.to.be.ok();
-      expect(vlc.drain()).to.equal('enqueue \'test.mp4\'\r\n');
+      expect(vlc.drain()).to.equal('enqueue test.mp4\r\n');
       chain();
     });
   });

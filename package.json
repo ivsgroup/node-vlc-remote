@@ -4,6 +4,7 @@
   "description": "VLC control through TCP/RC (telnet) remote interface",
   "main": "index.js",
   "scripts": {
+    "mocha": "node node_modules/mocha/bin/_mocha",
     "test": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha test/"
   },
   "repository": {
@@ -22,10 +23,11 @@
     "url": "https://github.com/ivsgroup/node-vlc-remote/issues"
   },
   "homepage": "https://github.com/ivsgroup/node-vlc-remote",
+  "optionalDependencies": {
+    "vlc-player": "^1.0.0"
+  },
   "dependencies": {
-    "async": "1.5.2",
-    "nyks": "2.5.1",
-    "uclass": "2.0.7"
+    "mout": "^1.0.0"
   },
   "devDependencies": {
     "expect.js": "^0.3.1",
