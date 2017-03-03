@@ -66,16 +66,17 @@ module.exports = function(/*[options,] chain*/){
   var recorder = vlc(cmdargs);
   var remote = new Remote(options.port, options.host);
 
-
+  var dataBuff = '';
   var skin_ready = (config.intf == "skins2") ? false : true;
   recorder.stderr.on('data', (data) => {
-    data = "" + data;
+    dataBuff = dataBuff + data;
 
     if(!skin_ready)
-      if((data).indexOf("using skin file") != -1)
+      if((dataBuff).indexOf("using skin file") != -1)
         skin_ready = true;
-    if(splitter.test(data)){
-      var matches = splitter.exec(data);
+    if(splitter.test(dataBuff)){
+      var matches = splitter.exec(dataBuff);
+      dataBuff = '';
       remote.emit('play', matches[1]);
     }
   });
