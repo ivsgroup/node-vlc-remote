@@ -6,6 +6,8 @@ const spawn   = require('child_process').spawn;
 const isWin  = (process.platform == 'win32');
 const Remote = require("./");
 
+const heartbeat_interval = 40 * 1000;
+
 var vlc;
 try {
   vlc    = require('vlc-player'); 
@@ -84,12 +86,23 @@ module.exports = function(/*[options,] chain*/){
 
   remote.vlc = recorder;
 
+  var heartbeat = () => {
+    remote.info((err) => {
+      if(err){
+        recorder.kill();
+        clearInterval(heartbeat);
+      }
+    })
+  }
+
   var attempt = 5;
     //we consider everything ready once we can fetch dummy infos
   (function waitVlc() {
     remote.info(function(err , output){
-      if(!err && skin_ready)
+      if(!err && skin_ready){
+        setInterval(heartbeat, heartbeat_interval);
         return chain();
+      }
       if (!attempt --)
         return chain(err);
       return setTimeout(waitVlc , 200)
