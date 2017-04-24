@@ -37,93 +37,120 @@ describe("Initial test suite", function(){
   var remote = new Remote();
 
   it("start testing a dummy play", function(chain) {
-    remote.play("test.mp4", function(err){
-      expect(err).not.to.be.ok();
+    remote.play("test.mp4")
+    .then(()=>{
       expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\n');
       chain();
-    });
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
+    })
   });
 
 
   it("plays a file once", function(chain){
-    remote.playonce("testonce.mp4", function(err){
-      expect(err).not.to.be.ok();
+    remote.playonce("testonce.mp4")
+    .then(()=>{
       expect(vlc.drain()).to.equal('add testonce.mp4\r\nget_length\r\nget_length\r\nclear\r\nadd test.mp4\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
 
   it("tests a playlist", function(chain){
-    remote.play(["test.mp4", "test1.mp4", "test2.mp4"], function(err){
-      expect(err).not.to.be.ok();
+    remote.play(["test.mp4", "test1.mp4", "test2.mp4"])
+    .then(()=>{
       expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue test1.mp4\r\nenqueue test2.mp4\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
 
   it("enques a simple file", function(chain){
-    remote.enqueue("test.mp4", function(err){
-      expect(err).not.to.be.ok();
+    remote.enqueue("test.mp4")
+    .then(()=>{
       expect(vlc.drain()).to.equal('enqueue test.mp4\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
 
 
   it("plays nothing", function(chain){
-    remote.play([], function(err){
-      expect(err).not.to.be.ok();
+    remote.play([])
+    .then(()=>{
       expect(vlc.drain()).to.equal('stop\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
-
 
   it("gets length", function(chain){
-    remote.getLength(function(err){
-      expect(err).not.to.be.ok();
+    remote.getLength()
+    .then(()=>{
       expect(vlc.drain()).to.equal('get_length\r\nget_length\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
   it("tests dummy callback", function(chain){
-    remote.pause(function(err){
-      expect(err).not.to.be.ok();
+    remote.pause()
+    .then(()=>{
       expect(vlc.drain()).to.equal('pause\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
   it("tests dummy callback", function(chain){
-    remote.stop(function(err){
-      expect(err).not.to.be.ok();
+    remote.stop()
+    .then(()=>{
       expect(vlc.drain()).to.equal('stop\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
   it("tests dummy callback", function(chain){
-    remote.info(function(err){
-      expect(err).not.to.be.ok();
+    remote.info()
+    .then(()=>{
       expect(vlc.drain()).to.equal('info\r\n');
       chain();
+    })
+    .catch((err) => {
+      expect(false).to.be(true);
     });
   });
 
   it("Cannot connect as there is no server", function(chain) {
     var remote = new Remote(8081);
-    remote.play("test.mp4", function(err){
+    remote.play("test.mp4")
+    .then(()=>{
+      expect(false).to.be(true);
+    })
+    .catch((err) => {
       expect(err).to.be.ok();
       chain();
     });
+
   });
-
-
-
-
 
 });

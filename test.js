@@ -9,16 +9,19 @@ var player = vlc(function(){
 
   player.on('play', function(path){
     console.log("Playing", path);
-
   });
+
   setTimeout(function(){
-    player.play("test/video 0.mp4", function(){} );
+    console.log('run play')
+    player.play("test/video 0.mp4")
+    .then((data)=>{console.log(data)})
+    .catch((err)=>{console.log(err)})
   }, 1000);
 
   setInterval(function(){
-    player.getLength(function(err, length){
+    player.getLength().then((length)=>{
       console.log("Got", err, length);
-    } );
+    });
 
   }, 400);
 
