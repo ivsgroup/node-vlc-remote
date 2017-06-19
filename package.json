@@ -4,6 +4,7 @@
   "description": "VLC control through TCP/RC (telnet) remote interface",
   "main": "index.js",
   "scripts": {
+    "local": "cnyks p.js",
     "mocha": "node node_modules/mocha/bin/_mocha",
     "test": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha test/"
   },
@@ -31,6 +32,7 @@
     "mout": "^1.0.0"
   },
   "devDependencies": {
+    "cnyks": "^1.17.1",
     "expect.js": "^0.3.1",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5"
