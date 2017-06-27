@@ -1,7 +1,7 @@
 "use strict";
 
 const net          = require('net');
-const EventEmitter = require('events').EventEmitter;
+const EventEmitter = require('eventemitter-co');
 
 
 class Remote extends EventEmitter {
@@ -94,6 +94,7 @@ class Remote extends EventEmitter {
       chain   = args.pop(),
       files = args.shift() || [];
 
+    chain = (typeof chain == 'function') ? chain : Function.prototype;
     if(typeof files == "string")
       files = [files];
 
