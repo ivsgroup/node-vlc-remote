@@ -52,8 +52,6 @@ module.exports = function(/*[options,] chain*/){
       chain   = args.pop(),
       options = args.shift() || {};
 
-
-  
   mixIn(config, options.args ||{});
   if(config.intf != "skins2"){
     mixIn(config, {"fullscreen" : null});
@@ -61,13 +59,15 @@ module.exports = function(/*[options,] chain*/){
    mixIn(config, {"video-on-top" : null});
   }
 
-
   var cmdargs = values( map(config, function(v, k){
     return '--' + k + '' +(v === null ? '' : '=' + v);
   } ));
 
   var recorder = vlc(cmdargs);
-  var remote = new Remote(options.port, options.host);
+
+  var port = config['rc-host'].split(':')[1];
+  var host = config['rc-host'].split(':')[0];
+  var remote = new Remote(port, host);
 
   var dataBuff = '';
   var skin_ready = (config.intf == "skins2") ? false : true;
@@ -110,7 +110,7 @@ module.exports = function(/*[options,] chain*/){
     remote.info(function(err , output){
       if(!err && skin_ready){
         setInterval(heartbeat, heartbeat_interval);
-        return chain();
+        return chain(null, remote);
       }
       if (!attempt --) {
         remote.close();

@@ -91,8 +91,8 @@ class Remote extends EventEmitter {
     
     var self = this;
     var args    = [].slice.apply(arguments),
-      chain   = args.pop(),
-      files = args.shift() || [];
+      files = args.shift() || [],
+      chain   = args.pop();
 
     chain = (typeof chain == 'function') ? chain : Function.prototype;
     if(typeof files == "string")
@@ -100,7 +100,6 @@ class Remote extends EventEmitter {
 
     if(!files.length)
       return this.stop(chain);
-
     this.playlist = files.slice(0);//clone it
 
     this._send("clear\r\nadd " + files.shift(), function(err){
