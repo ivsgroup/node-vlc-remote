@@ -56,7 +56,8 @@ class Remote extends EventEmitter {
   playonce(file, chain) {
     var self = this,
         meta_delay = 1000; //time to wait for metadata to be ready
-
+    if(Array.isArray(file))
+      file = file[0];
     if(self.firstTimeout)
       clearTimeout(self.firstTimeout);
    if(self.secondTimeout)
