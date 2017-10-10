@@ -2,8 +2,16 @@
 
 const promisify = require('nyks/function/promisify');
 const Remote = require('./');
+const Player = require('./player');
+
+
+
 
 class RemoteP extends Remote {
+  *start() {
+    yield new Player({}, Function.prototype).start();
+
+  }
 
   getLength()      /*  *the length of the current stream */     { return promisify(super.getLength, this).apply(this, arguments); }
   info()           /*  *information about the current stream*/  { return promisify(super.info, this).apply(this, arguments); }

@@ -30,7 +30,8 @@
   "dependencies": {
     "debug": "^2.3.2",
     "eventemitter-co": "^1.0.4",
-    "mout": "^1.0.0"
+    "mout": "^1.0.0",
+    "nyks": "^4.0.7"
   },
   "devDependencies": {
     "cnyks": "^1.17.1",

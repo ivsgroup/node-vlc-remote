@@ -5,23 +5,14 @@ const spawn   = require('child_process').spawn;
 
 const isWin  = (process.platform == 'win32');
 const Remote = require('./');
-const log    = require('debug')('vlc');
-
-const heartbeat_interval = 40 * 1000;
-
-var vlc;
-try {
-  vlc    = require('vlc-player'); 
-} catch(e) {
-  vlc  = function(/* args, options */) {
-    return spawn.bind(null, 'vlc').apply(null, arguments);
-  }
-}
-
+const debug    = require('debug')('vlc');
 const map    = require('mout/object/map');
 const values = require('mout/object/values');
 const mixIn  = require('mout/object/mixIn');
+const sleep  = require('nyks/async/sleep');
+const defer  = require('nyks/promise/defer');
 
+const heartbeat_interval =1000;
 const splitter = /input debug: `(.*)' successfully opened/;
 
 var config  = {
@@ -47,81 +38,112 @@ if(isWin) mixIn(config, {
 });
 
 
-module.exports = function(/*[options,] chain*/){
-  var args    = [].slice.apply(arguments),
-      chain   = args.pop(),
-      options = args.shift() || {};
-
-  mixIn(config, options.args ||{});
-  if(config.intf != "skins2"){
-    mixIn(config, {"fullscreen" : null});
-  }else{
-   mixIn(config, {"video-on-top" : null});
+var vlc;
+try {
+  vlc    = require('vlc-player'); 
+} catch(e) {
+  vlc  = function(/* args, options */) {
+    return spawn.bind(null, 'vlc').apply(null, arguments);
   }
-
-  var cmdargs = values( map(config, function(v, k){
-    return '--' + k + '' +(v === null ? '' : '=' + v);
-  } ));
-
-  var recorder = vlc(cmdargs);
-
-  var port = config['rc-host'].split(':')[1];
-  var host = config['rc-host'].split(':')[0];
-  var remote = new Remote(port, host);
-
-  var dataBuff = '';
-  var skin_ready = (config.intf == "skins2") ? false : true;
-  recorder.stderr.on('data', (data) => {
-    dataBuff = dataBuff + data;
-
-    if(!skin_ready)
-      if((dataBuff).indexOf("using skin file") != -1)
-        skin_ready = true;
-    if(splitter.test(dataBuff)){
-      var matches = splitter.exec(dataBuff);
-      dataBuff = '';
-      remote.emit('play', matches[1]);
-    }
-  });
-
-
-  remote.vlc = recorder;
-
-  recorder.on("close", remote.emit.bind(remote, "close"));
-  recorder.on("error", remote.emit.bind(remote, "error"));
-
-  var heartbeat = () => {
-    remote.info((err) => {
-      if(err){
-        recorder.kill();
-        clearInterval(heartbeat);
-      }
-    })
-  }
-
-  remote.close = () => {
-    recorder.kill();
-    clearInterval(heartbeat);
-  }
-
-  var attempt = 10;
-    //we consider everything ready once we can fetch dummy infos
-  (function waitVlc() {
-    remote.info(function(err , output){
-      if(!err && skin_ready){
-        setInterval(heartbeat, heartbeat_interval);
-        return chain(null, remote);
-      }
-      if (!attempt --) {
-        remote.close();
-        return chain(err);
-       }
-      return setTimeout(waitVlc , 200)
-    })
-  })();
-
-
-  return remote;
 }
 
 
+class Player extends Remote{
+  
+  constructor(options) {
+    var player_options = mixIn({}, config, options ||{});
+    var port = player_options['rc-host'].split(':')[1];
+    var host = player_options['rc-host'].split(':')[0];
+    super(port, host)
+    this.options = player_options;
+  }
+
+  *start(){
+
+    if(this.vlc)
+      return Promise.resolve(this);
+
+    var cmdargs = values( map(config, function(v, k){
+      return '--' + k + '' +(v === null ? '' : '=' + v);
+    }));
+
+    this.vlc = vlc(cmdargs);
+    var dataBuff = '';
+
+    this.vlc.stderr.on('data', (data) => {
+      if(splitter.test(dataBuff)){
+        var matches = splitter.exec(dataBuff);
+        dataBuff = '';
+        this.emit('play', matches[1]);
+        debug(`playing ${matches[1]}`);
+      }
+    })
+
+    if(this.options.intf == "skins2")
+      yield this._waitVlcSkin();
+
+    try{
+      debug("waiting player server");
+      yield this._waitVlcServerStart();
+      debug("Player ready");
+    }catch(err){
+      this.vlc.kill();
+      this.vlc = null;
+      throw err;
+    }
+    this.vlc.on('close', this.emit.bind(this, 'close'));
+    this.vlc.on('error', this.emit.bind(this, 'error'));
+
+    var heartbeat = () => {
+      this.info((err) => {
+        debug('everyThink OK')
+        if(err){
+          this.vlc.kill();
+          this.vlc = null;          
+          clearInterval(heartbeat);
+        }
+      })
+    }
+
+    setInterval(heartbeat, heartbeat_interval);
+
+    Promise.resolve(this);
+  }
+
+  *_waitVlcSkin(){
+    var waitSkin = defer();
+    var skinBuff = '';
+    var self = this;
+    debug("waiting skin load ");
+    this.vlc.stderr.on('data', function listener(data){
+      skinBuff = skinBuff + data;
+      if((skinBuff).indexOf("using skin file") != -1){
+        debug("Skin ready");
+        self.vlc.stderr.removeListener('data' , listener);
+        waitSkin.resolve();
+      }
+    });
+    return waitSkin;
+  }
+
+
+  *_waitVlcServerStart(){
+    var attempt    = 10;
+    var shouldWait = true;
+    while(shouldWait || !attempt--){
+      try{
+        let defered = defer();
+        this.info(defered.chain.bind(null));
+        yield defered;
+        shouldWait = false;
+      }catch(err){
+        sleep(200);
+      }
+    }
+    if(!attempt)
+      return Promise.reject('Server not rady');
+    Promise.resolve();
+  }
+}
+
+module.exports = Player;
