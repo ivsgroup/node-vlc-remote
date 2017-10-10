@@ -51,7 +51,7 @@ try {
 class Player extends Remote{
   
   constructor(options) {
-    var player_options = mixIn({}, config, options ||{});
+    var player_options = mixIn({}, config, (options ||{}).args);
     var port = player_options['rc-host'].split(':')[1];
     var host = player_options['rc-host'].split(':')[0];
     super(port, host)
@@ -59,11 +59,10 @@ class Player extends Remote{
   }
 
   *start(){
-
     if(this.vlc)
       return Promise.resolve(this);
 
-    var cmdargs = values( map(config, function(v, k){
+    var cmdargs = values(map(this.options, function(v, k){
       return '--' + k + '' +(v === null ? '' : '=' + v);
     }));
 
@@ -87,8 +86,7 @@ class Player extends Remote{
       yield this._waitVlcServerStart();
       debug("Player ready");
     }catch(err){
-      this.vlc.kill();
-      this.vlc = null;
+      this.close();
       throw err;
     }
     this.vlc.on('close', this.emit.bind(this, 'close'));
@@ -96,19 +94,23 @@ class Player extends Remote{
 
     var heartbeat = () => {
       this.info((err) => {
-        debug('everyThink OK')
         if(err){
-          this.vlc.kill();
-          this.vlc = null;          
+          this.close();
           clearInterval(heartbeat);
         }
       })
     }
-
     setInterval(heartbeat, heartbeat_interval);
-
     Promise.resolve(this);
   }
+
+  close(){
+    try{
+      this.vlc.kill();
+    }catch(err){}
+    this.vlc = null;
+  }
+
 
   *_waitVlcSkin(){
     var waitSkin = defer();
