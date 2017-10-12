@@ -70,6 +70,7 @@ class Player extends Remote{
     var dataBuff = '';
 
     this.vlc.stderr.on('data', (data) => {
+      dataBuff = dataBuff + data;
       if(splitter.test(dataBuff)){
         var matches = splitter.exec(dataBuff);
         dataBuff = '';
