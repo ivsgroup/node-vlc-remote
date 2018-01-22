@@ -58,7 +58,7 @@ class Player extends Remote{
     this.options = player_options;
   }
 
-  *start() {
+  async start() {
     if(this.vlc)
       return Promise.resolve(this);
 
@@ -80,11 +80,11 @@ class Player extends Remote{
     });
 
     if(this.options.intf == "skins2")
-      yield this._waitVlcSkin();
+      await this._waitVlcSkin();
 
     try {
       debug("waiting player server");
-      yield this._waitVlcServerStart();
+      await this._waitVlcServerStart();
       debug("Player ready");
     }catch(err) {
       this.close();
@@ -115,7 +115,7 @@ class Player extends Remote{
   }
 
 
-  *_waitVlcSkin() {
+  _waitVlcSkin() {
     var waitSkin = defer();
     var skinBuff = '';
     var self = this;
@@ -132,17 +132,17 @@ class Player extends Remote{
   }
 
 
-  *_waitVlcServerStart() {
+  async _waitVlcServerStart() {
     var attempt    = 10;
     var shouldWait = true;
     while(shouldWait || !attempt--) {
       try {
         let defered = defer();
         this.info(defered.chain.bind(null));
-        yield defered;
+        await defered;
         shouldWait = false;
       }catch(err) {
-        sleep(200);
+        await sleep(200);
       }
     }
     if(!attempt)
