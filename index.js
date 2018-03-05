@@ -134,7 +134,7 @@ class Remote extends EventEmitter {
         sock.write(str + "\r\n", function() {
           sock.end();
         });
-      }catch (e) {
+      } catch(e) {
         /* istanbul ignore next */ chain(e);}
     });
 

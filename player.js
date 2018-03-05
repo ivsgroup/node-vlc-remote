@@ -31,11 +31,13 @@ var config  = {
   'loop'             : null,
 };
 
-if(isWin) mixIn(config, {
-  'no-crashdump'     : null,
-  'rc-quiet'         : null,
-  'dummy-quiet'      : null,
-});
+if(isWin) {
+  mixIn(config, {
+    'no-crashdump'     : null,
+    'rc-quiet'         : null,
+    'dummy-quiet'      : null,
+  });
+}
 
 
 var vlc;
@@ -48,7 +50,7 @@ try {
 }
 
 
-class Player extends Remote{
+class Player extends Remote {
 
   constructor(options) {
     var player_options = mixIn({}, config, (options || {}).args);
@@ -60,13 +62,13 @@ class Player extends Remote{
 
   async start() {
     if(this.vlc)
-      return Promise.resolve(this);
+      return;
 
     var cmdargs = values(map(this.options, function(v, k) {
       return '--' + k + '' + (v === null ? '' : '=' + v);
     }));
 
-    this.vlc = vlc(cmdargs);
+    this.vlc = vlc(cmdargs); //ignore here ?
     var dataBuff = '';
 
     this.vlc.stderr.on('data', (data) => {
@@ -86,29 +88,31 @@ class Player extends Remote{
       debug("waiting player server");
       await this._waitVlcServerStart();
       debug("Player ready");
-    }catch(err) {
+    } catch(err) {
       this.close();
       throw err;
     }
     this.vlc.on('close', this.emit.bind(this, 'close'));
     this.vlc.on('error', this.emit.bind(this, 'error'));
 
-    var heartbeat = () => {
+    var heartbeat = setInterval(() => {
       this.info((err) => {
         if(err) {
           this.close();
           clearInterval(heartbeat);
         }
       });
-    };
-    setInterval(heartbeat, heartbeat_interval);
-    Promise.resolve(this);
+    }, heartbeat_interval);
+
   }
 
   close() {
+    if(!this.vlc)
+      return;
+
     try {
       this.vlc.kill();
-    }catch(err) {
+    } catch(err) {
       debug(err);
     }
     this.vlc = null;
@@ -135,19 +139,21 @@ class Player extends Remote{
   async _waitVlcServerStart() {
     var attempt    = 10;
     var shouldWait = true;
+
     while(shouldWait || !attempt--) {
       try {
         let defered = defer();
         this.info(defered.chain.bind(null));
         await defered;
         shouldWait = false;
-      }catch(err) {
+      } catch(err) {
         await sleep(200);
       }
     }
+
     if(!attempt)
-      return Promise.reject('Server not rady');
-    Promise.resolve();
+      throw 'Server not ready';
+
   }
 }
 
