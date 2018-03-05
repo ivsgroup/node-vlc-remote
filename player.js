@@ -68,7 +68,7 @@ class Player extends Remote {
       return '--' + k + '' + (v === null ? '' : '=' + v);
     }));
 
-    this.vlc = vlc(cmdargs); //ignore here ?
+    this.vlc = vlc(cmdargs, {stdio : ['ignore', 'ignore', 'pipe']});
     var dataBuff = '';
 
     this.vlc.stderr.on('data', (data) => {
@@ -92,6 +92,9 @@ class Player extends Remote {
       this.close();
       throw err;
     }
+
+    debug(`Spawned vlc child pid: ${this.vlc.pid}`);
+
     this.vlc.on('close', this.emit.bind(this, 'close'));
     this.vlc.on('error', this.emit.bind(this, 'error'));
 
@@ -112,6 +115,7 @@ class Player extends Remote {
 
     try {
       this.vlc.kill();
+      debug(`killed vlc child pid: ${this.vlc.pid}`);
     } catch(err) {
       debug(err);
     }
