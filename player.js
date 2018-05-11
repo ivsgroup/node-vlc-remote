@@ -52,12 +52,13 @@ try {
 
 class Player extends Remote {
 
-  constructor(options) {
+  constructor(options, vlcfactory) {
     var player_options = mixIn({}, config, (options || {}).args);
     var port = player_options['rc-host'].split(':')[1];
     var host = player_options['rc-host'].split(':')[0];
     super(port, host);
     this.options = player_options;
+    this.vlcfactory = vlcfactory || vlc;
   }
 
   async start() {
@@ -68,7 +69,7 @@ class Player extends Remote {
       return '--' + k + '' + (v === null ? '' : '=' + v);
     }));
 
-    this.vlc = vlc(cmdargs, {stdio : ['ignore', 'ignore', 'pipe']});
+    this.vlc = this.vlcfactory(cmdargs, {stdio : ['ignore', 'ignore', 'pipe']});
     var dataBuff = '';
 
     this.vlc.stderr.on('data', (data) => {
