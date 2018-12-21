@@ -26,14 +26,15 @@ class RemoteP extends Remote {
   status()          /*  *current playlist status*/              { return promisify(super.status, this).apply(this, arguments); }
   pause()           /*  *toggle pause*/                         { return promisify(super.pause, this).apply(this, arguments); }
   fullscreen(state) /*  *state=[on|off] toggle fullscreen*/     { return promisify(super.fullscreen, this).apply(this, arguments); }
-  
+
   stats()           /*  *show statistical information*/         { return promisify(super.stats, this).apply(this, arguments); }
   get_time()        /*  *seconds elapsed since stream's beginning*/ { return promisify(super.get_time, this).apply(this, arguments); }
   is_playing()      /*  *1 if a stream plays, 0 otherwise*/     { return promisify(super.is_playing, this).apply(this, arguments); }
   get_title()       /*  *the title of the current stream*/      { return promisify(super.get_title, this).apply(this, arguments); }
   vratio(ratio)     /*  *set/get video aspect ratio*/           { return promisify(super.vratio, this).apply(this, arguments); }
   snapshot()        /*  *take video snapshot*/                  { return promisify(super.snapshot, this).apply(this, arguments); }
-
+  screenRecorder()  /*  *screen recorde*/                       { return promisify(super.screenRecorder, this).apply(this, arguments); }
+  shutdown()        /*  *shutdown vlc*/                         { return promisify(super.shutdown, this).apply(this, arguments); }
 
 
   playonce(file) { return promisify(super.playonce, this).apply(this, arguments); }
