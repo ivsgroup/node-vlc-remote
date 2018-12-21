@@ -2,6 +2,7 @@
 
 const net          = require('net');
 const EventEmitter = require('eventemitter-co');
+const isWin = process.platform === "win32";
 
 
 class Remote extends EventEmitter {
@@ -35,7 +36,7 @@ class Remote extends EventEmitter {
   snapshot(chain)        { return this._send("snapshot", chain); }
   vratio(ratio, chain)   { return this._send("vratio " + ratio || "", chain); }
   screenRecorder(chain)  {return this._send("add screen://", chain);}
-  shutdown(chain)        {return this._send("shutdown", chain);}
+  shutdown(chain)        {return this._send(isWin ? "quit" : "shutdown", chain);}
 
   getLength(chain) {
     //first call to get_length always return 0
