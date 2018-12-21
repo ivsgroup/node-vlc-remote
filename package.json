@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/ivsgroup/node-vlc-remote",
   "optionalDependencies": {
-    "vlc-player": "^1.0.0"
+    "vlc-player": "^1.1.0"
   },
   "dependencies": {
     "debug": "^2.3.2",
