@@ -34,8 +34,8 @@ class Remote extends EventEmitter {
   get_title(chain)       { return this._send("get_title", chain); }
   snapshot(chain)        { return this._send("snapshot", chain); }
   vratio(ratio, chain)   { return this._send("vratio " + ratio || "", chain); }
-  screenRecorder()       {return this._send("add screen://", chain);}
-  shutdown()             {return this._send("shutdown", chain);}
+  screenRecorder(chain)  {return this._send("add screen://", chain);}
+  shutdown(chain)        {return this._send("shutdown", chain);}
 
   getLength(chain) {
     //first call to get_length always return 0
