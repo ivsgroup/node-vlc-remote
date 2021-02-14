@@ -4,7 +4,7 @@
 
 ```
 var Remote = require('vlc-remote');
-var remote = new Remote([port=8088, [host="127.0.0.1"]]);
+var remote = new Remote(port=8088, host="127.0.0.1");
 
 remote.play("file_path" or ["playlist_file_path*",], function(err, body){
 
