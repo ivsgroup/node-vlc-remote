@@ -10,7 +10,7 @@ var Remote = require('../remote');
 describe("Initial test suite", function() {
   var body = "";
   var vlc = net.createServer(function(sock) {
-    sock.on("data", function(buf){
+    sock.on("data", function(buf) {
       //when someone asks for length, answer is 1
       if(buf == "get_length\r\nget_length\r\n")
         sock.end("0\r\n1");
@@ -45,7 +45,7 @@ describe("Initial test suite", function() {
   it("tests a playlist", async function() {
     await remote.play(["test.mp4", "test1.mp4", "test2.mp4"]);
     expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue test1.mp4\r\nenqueue test2.mp4\r\n');
-  })
+  });
 
   it("enques a simple file", async function() {
     await remote.enqueue("test.mp4");

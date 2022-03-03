@@ -1,7 +1,5 @@
-
 "use strict";
 
-const spawn   = require('child_process').spawn;
 
 const isWin  = (process.platform == 'win32');
 const Remote = require('./remote');
@@ -95,7 +93,7 @@ class Player extends Remote {
     this.vlc.on('error', this.emit.bind(this, 'error'));
 
     var heartbeat = setInterval(() => {
-      this.info().catch((err) => {
+      this.info().catch(() => {
         this.close();
         clearInterval(heartbeat);
       });

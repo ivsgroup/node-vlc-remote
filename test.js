@@ -1,33 +1,33 @@
 "use strict";
 
-var vlc = require('./player');
+var Vlc = require('./player');
 
 
-var player = new vlc();
+var player = new Vlc();
 
 player.start().then(function() {
 
   console.log("ready");
 
-  player.on('play', function(path){
+  player.on('play', function(path) {
     console.log("Playing", path);
   });
 
 
-  setTimeout(function(){
+  setTimeout(function() {
     player.play("test/video 0.mp4");
   }, 1000);
 
-  let i = setInterval(async function(){
+  let i = setInterval(async function() {
     let length = await player.getLength();
     console.log("Got length", length);
   }, 400);
 
 
-  setTimeout(function(){
+  setTimeout(function() {
     player.close();
     clearInterval(i);
   }, 10 * 1000);
 
-  
+
 });
