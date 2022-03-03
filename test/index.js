@@ -4,8 +4,7 @@ var expect = require("expect.js");
 var net    = require("net");
 
 
-
-var Remote = require('../');
+var Remote = require('../remote');
 
 
 describe("Initial test suite", function() {
@@ -27,95 +26,66 @@ describe("Initial test suite", function() {
   };
 
 
-
-  it("should prepare a vlc server mock", function(chain) {
-    vlc.listen(8088, function(err){
-      console.log(this.listening);
-      chain(err);
-    });
+  it("should prepare a vlc server mock", async function() {
+    await vlc.listen(8088);
   });
 
   var remote = new Remote();
 
-  it("start testing a dummy play", function(done) {
-    remote.play("test.mp4", (err) => {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\n');
-      done();
-    });
+  it("start testing a dummy play", async function() {
+    await remote.play("test.mp4");
+    expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\n');
   });
 
-  it("plays a file once", function(done){
-    remote.playonce("testonce.mp4", (err) => {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('add testonce.mp4\r\nget_length\r\nget_length\r\nclear\r\nadd test.mp4\r\n');
-      done();
-    });
+  it("plays a file once", async function() {
+    await remote.playonce("testonce.mp4");
+    expect(vlc.drain()).to.equal('add testonce.mp4\r\nget_length\r\nget_length\r\nclear\r\nadd test.mp4\r\n');
   });
 
-  it("tests a playlist", function(done){
-    remote.play(["test.mp4", "test1.mp4", "test2.mp4"], (err) => {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue test1.mp4\r\nenqueue test2.mp4\r\n');
-      done();
-    });
+  it("tests a playlist", async function() {
+    await remote.play(["test.mp4", "test1.mp4", "test2.mp4"]);
+    expect(vlc.drain()).to.equal('clear\r\nadd test.mp4\r\nenqueue test1.mp4\r\nenqueue test2.mp4\r\n');
   })
 
-  it("enques a simple file", function(done) {
-    remote.enqueue("test.mp4", (err)=> {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('enqueue test.mp4\r\n');
-      done();
-    });
+  it("enques a simple file", async function() {
+    await remote.enqueue("test.mp4");
+    expect(vlc.drain()).to.equal('enqueue test.mp4\r\n');
   });
 
 
-  it("plays nothing", function(done) {
-    remote.play([], (err) => {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('stop\r\n');
-      done();
-    });
+  it("plays nothing", async function() {
+    await remote.play([]);
+    expect(vlc.drain()).to.equal('stop\r\n');
   });
 
-  it("gets length", function(done) {
-    remote.getLength((err) => {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('get_length\r\nget_length\r\n');
-      done();
-    });
+  it("gets length", async function() {
+    await remote.getLength();
+    expect(vlc.drain()).to.equal('get_length\r\nget_length\r\n');
   });
 
-  it("tests dummy callback", function(done) {
-    remote.pause((err)=>{
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('pause\r\n');
-      done();
-    });
+  it("tests dummy callback", async function() {
+    await remote.pause();
+    expect(vlc.drain()).to.equal('pause\r\n');
   });
 
-  it("tests dummy callback", function(done){
-    remote.stop((err)=> {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('stop\r\n');
-      done();
-    });
+  it("tests dummy callback", async function() {
+    await remote.stop(),
+    expect(vlc.drain()).to.equal('stop\r\n');
   });
 
-  it("tests dummy callback", function(done){
-    remote.info((err)=> {
-      expect(err).to.be.undefined;
-      expect(vlc.drain()).to.equal('info\r\n');
-      done();
-    });
+  it("tests dummy callback", async function() {
+    await remote.info();
+    expect(vlc.drain()).to.equal('info\r\n');
   });
 
-  it("Cannot connect as there is no server", function(done) {
-    var remote = new Remote(8081);
-    remote.play("test.mp4", (err)=>{
-      expect(err).to.be.ok();
-      done();
-    });
+  it("Cannot connect as there is no server", async function() {
+    try {
+      var remote = new Remote(8081);
+      await remote.play("test.mp4");
+      expect().to.fail("Never here");
+    } catch(err) {
+      expect(err.code).to.match(/ECONNREFUSED/);
+    }
   });
 
 });

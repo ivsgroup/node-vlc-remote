@@ -6,28 +6,24 @@ var screensaver = require('screensaver-win');
 
 var remote = player(function(){
 
+  let stuff = function() {
 
-  ( function stuff(){
-
-    screensaver(5, function(){
+    screensaver(5, async function() {
       console.log("Screensaver start");
 
-      remote.play("test\\video0.mp4", function(){
-        console.log("Playing")
-      });
+      await remote.play("test\\video0.mp4");
+      console.log("Playing")
 
+    }, async function() {
 
-    }, function(){
-
-      remote.stop(function(){
-        console.log("stopped")
-      });
+      await remote.stop();
+      console.log("stopped")
 
       stuff(); //do it again !
-    })
+    });
 
-  })();
+  };
 
-
+  stuff();
 
 });

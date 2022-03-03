@@ -3,23 +3,18 @@
 # API
 
 ```
-var Remote = require('vlc-remote');
+const Remote = require('vlc-remote');
 var remote = new Remote(port=8088, host="127.0.0.1");
 
-remote.play("file_path" or ["playlist_file_path*",], function(err, body){
-
-});
+await remote.play("file_path" or ["playlist_file_path",]);
 
 
-remote.stop(function(err, body){
-
-});
-
+await remote.stop();
 ```
 
 
 # Credits
-* [131](mailto:131.js@cloudyks.org) (tw : 131tw)
+* [131](https://github.com/131)
 * [VLC](http://videolan.org)
 
 

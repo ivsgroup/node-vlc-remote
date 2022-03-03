@@ -4,13 +4,16 @@
 const spawn   = require('child_process').spawn;
 
 const isWin  = (process.platform == 'win32');
-const Remote = require('./');
+const Remote = require('./remote');
+
 const debug    = require('debug')('vlc');
 const map    = require('mout/object/map');
 const values = require('mout/object/values');
 const mixIn  = require('mout/object/mixIn');
 const sleep  = require('nyks/async/sleep');
 const defer  = require('nyks/promise/defer');
+
+const vlc    = require('vlc-player');
 
 const heartbeat_interval = 1000;
 const splitter = /input debug: `(.*)' successfully opened/;
@@ -40,25 +43,17 @@ if(isWin) {
 }
 
 
-var vlc;
-try {
-  vlc    = require('vlc-player');
-} catch(e) {
-  vlc  = function(/* args, options */) {
-    return spawn.bind(null, 'vlc').apply(null, arguments);
-  };
-}
-
 
 class Player extends Remote {
 
-  constructor(options, vlcfactory) {
+  constructor(options = {}, vlcfactory = vlc) {
     var player_options = mixIn({}, config, (options || {}).args);
-    var port = player_options['rc-host'].split(':')[1];
-    var host = player_options['rc-host'].split(':')[0];
+    let [host, port] = player_options['rc-host'].split(':');
+
     super(port, host);
+
     this.options = player_options;
-    this.vlcfactory = vlcfactory || vlc;
+    this.vlcfactory = vlcfactory;
   }
 
   async start() {
@@ -100,14 +95,11 @@ class Player extends Remote {
     this.vlc.on('error', this.emit.bind(this, 'error'));
 
     var heartbeat = setInterval(() => {
-      this.info((err) => {
-        if(err) {
-          this.close();
-          clearInterval(heartbeat);
-        }
+      this.info().catch((err) => {
+        this.close();
+        clearInterval(heartbeat);
       });
     }, heartbeat_interval);
-
   }
 
   close() {
@@ -129,6 +121,7 @@ class Player extends Remote {
     var skinBuff = '';
     var self = this;
     debug("waiting skin load ");
+
     this.vlc.stderr.on('data', function listener(data) {
       skinBuff = skinBuff + data;
       if((skinBuff).indexOf("using skin file") != -1) {
@@ -145,18 +138,16 @@ class Player extends Remote {
     var attempt    = 10;
     var shouldWait = true;
 
-    while(shouldWait || !attempt--) {
+    while(shouldWait && (attempt--) > 0) {
       try {
-        let defered = defer();
-        this.info(defered.chain.bind(null));
-        await defered;
+        await this.info();
         shouldWait = false;
       } catch(err) {
         await sleep(200);
       }
     }
 
-    if(!attempt)
+    if(attempt <= 0)
       throw 'Server not ready';
 
   }

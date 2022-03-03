@@ -2,13 +2,12 @@
   "name": "vlc-remote",
   "version": "4.2.3",
   "description": "VLC control through TCP/RC (telnet) remote interface",
-  "main": "index.js",
+  "main": "player.js",
   "scripts": {
-    "local": "cnyks p.js",
-    "eslint": "eslint player.js index.js",
+    "eslint": "eslint .",
     "checkall": "npm run eslint",
     "mocha": "node node_modules/mocha/bin/_mocha",
-    "cover": "node node_modules/istanbul/lib/cli.js cover node_modules/mocha/bin/_mocha test/",
+    "cover": "nyc mocha",
     "test": "npm run checkall && npm run cover"
   },
   "repository": {
@@ -21,7 +20,7 @@
     "vlc-remote",
     "api"
   ],
-  "author": "Francois Leurent <131.js@cloudyks.org>",
+  "author": "Francois Leurent <131.code@leurent.email>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/ivsgroup/node-vlc-remote/issues"
@@ -32,15 +31,14 @@
   },
   "dependencies": {
     "debug": "^2.3.2",
-    "eventemitter-co": "^1.0.4",
     "mout": "^1.0.0",
-    "nyks": "^4.0.7"
+    "nyks": "^6.4.0",
+    "vlc-player": "^1.2.0"
   },
   "devDependencies": {
-    "cnyks": "^1.17.1",
-    "eslint-plugin-ivs": "^1.0.5",
+    "eslint-plugin-ivs": "^2.1.2",
     "expect.js": "^0.3.1",
-    "istanbul": "^0.4.2",
-    "mocha": "^2.4.5"
+    "nyc": "^15.0.1",
+    "mocha": "^3.1.2"
   }
 }
