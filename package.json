@@ -26,9 +26,6 @@
     "url": "https://github.com/ivsgroup/node-vlc-remote/issues"
   },
   "homepage": "https://github.com/ivsgroup/node-vlc-remote",
-  "optionalDependencies": {
-    "vlc-player": "1.0.0"
-  },
   "dependencies": {
     "debug": "^2.3.2",
     "mout": "^1.0.0",
@@ -38,7 +35,7 @@
   "devDependencies": {
     "eslint-plugin-ivs": "^2.1.2",
     "expect.js": "^0.3.1",
-    "nyc": "^15.0.1",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "nyc": "^15.0.1"
   }
 }
