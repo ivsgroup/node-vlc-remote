@@ -1,6 +1,6 @@
 {
   "name": "vlc-remote",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "VLC control through TCP/RC (telnet) remote interface",
   "main": "player.js",
   "scripts": {
