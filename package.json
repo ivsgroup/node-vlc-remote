@@ -30,7 +30,7 @@
     "debug": "^2.3.2",
     "mout": "^1.0.0",
     "nyks": "^6.4.0",
-    "vlc-player": "^1.2.0"
+    "vlc-player": "^2.0.0"
   },
   "devDependencies": {
     "eslint-plugin-ivs": "^2.1.2",

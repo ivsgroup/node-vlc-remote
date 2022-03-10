@@ -62,7 +62,7 @@ class Player extends Remote {
       return '--' + k + '' + (v === null ? '' : '=' + v);
     }));
 
-    this.vlc = this.vlcfactory(cmdargs, {stdio : ['ignore', 'ignore', 'pipe']});
+    this.vlc = await this.vlcfactory(cmdargs, {stdio : ['ignore', 'ignore', 'pipe']});
     var dataBuff = '';
 
     this.vlc.stderr.on('data', (data) => {
