@@ -42,6 +42,17 @@ class Remote extends EventEmitter {
   screenRecorder()  { return this._send("add screen://"); }
   shutdown()        { return this._send(isWin ? "quit" : "shutdown"); }
 
+  /**
+   * @description set/get volume
+   * @param {number} vol 
+   * @returns volume
+   */
+  volume(vol) {
+    if(vol)
+      return this._send("volume " + vol);
+    return this._send("volume");
+  }
+
   async getLength() {
     //first call to get_length always return 0 ??
     let length = await this._send("get_length\r\nget_length");
